@@ -68,6 +68,34 @@ def get_user(user_id):
         return make_response(jsonify({"code": 404, "msg": "Cannot find this user id."}), 404)
 
 
+@app.route("/user/<user_id>", methods={"DELETE"})
+def delete_user(user_id):
+    models.db.session.query(models.User).filter(models.User.id == user_id).delete()
+    try:
+        models.db.session.commit()
+    except sqlalchemy.exc.SQLAlchemyError as e:
+        error = "Cannot delete this user. "
+        print(app.config.get("DEBUG"))
+        if app.config.get("DEBUG"):
+            error += str(e)
+        return make_response(jsonify({"code": 404, "msg": error}), 404)
+    return jsonify({"code": 200, "msg": "successfully deleted user."})
+
+
+@app.route("/user", methods={"DELETE"})
+def delete_all_user():
+    models.db.session.query(models.User).delete()
+    try:
+        models.db.session.commit()
+    except sqlalchemy.exc.SQLAlchemyError as e:
+        error = "Cannot delete this user. "
+        print(app.config.get("DEBUG"))
+        if app.config.get("DEBUG"):
+            error += str(e)
+        return make_response(jsonify({"code": 404, "msg": error}), 404)
+    return jsonify({"code": 200, "msg": "successfully deleted all users."})
+
+
 @app.route("/book", methods={"PUT"})
 def put_book():
 

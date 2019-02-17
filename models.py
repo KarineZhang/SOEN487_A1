@@ -6,7 +6,7 @@ def row2dict(row):
 
 
 class Book(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True)
     book_code = db.Column(db.Integer, nullable=False)
     title = db.Column(db.Text(), nullable=False)
     author = db.Column(db.Text(), nullable=False)
@@ -23,7 +23,7 @@ class Book(db.Model):
 
 
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True)
     card = db.Column(db.Integer, nullable=False)
     dob = db.Column(db.Text(), nullable=False)
     name = db.Column(db.Text(), nullable=False)
@@ -65,7 +65,7 @@ class User(db.Model):
 
 
 class Library(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text(), nullable=False)
     address = db.Column(db.Text(), nullable=False)
     telephone = db.Column(db.Text(), nullable=False)

@@ -106,13 +106,56 @@ def get_all_book():
 @app.route("/book/<book_id>")
 def get_book(book_id):
     # id is a primary key, so we'll have max 1 result row
-    user = models.Book.query.filter_by(id=book_id).first()
-    if user:
-        return jsonify(models.row2dict(user))
+    book = models.Book.query.filter_by(id=book_id).first()
+    if book:
+        return jsonify(models.row2dict(book))
     else:
         return make_response(jsonify({"code": 404, "msg": "Cannot find this book id."}), 404)
 
 
+@app.route("/library", methods={"POST"})
+def put_library():
+
+    name = request.form.get("name")
+    address = request.form.get("address")
+    telephone = request.form.get("telephone")
+    email = request.form.get("email")
+
+    if not name and not address and not telephone and not email:
+        return make_response(jsonify({"code": 403,
+                                      "msg": "Cannot put library. Missing mandatory fields."}), 403)
+    library_id = request.form.get("id")
+    if not library_id:
+        p = models.Library(name=name, address=address, telephone=telephone, email=email)
+    else:
+        p = models.Library(id=library_id, name=name, address=address, telephone=telephone, email=email)
+
+    models.db.session.add(p)
+    try:
+        models.db.session.commit()
+    except sqlalchemy.exc.SQLAlchemyError as e:
+        error = "Cannot put library. "
+        print(app.config.get("DEBUG"))
+        if app.config.get("DEBUG"):
+            error += str(e)
+        return make_response(jsonify({"code": 404, "msg": error}), 404)
+    return jsonify({"code": 200, "msg": "Successfully added library."})
+
+
+@app.route("/library")
+def get_all_library():
+    library_list = models.Library.query.all()
+    return jsonify([models.row2dict(library) for library in library_list])
+
+
+@app.route("/library/<library_id>")
+def get_library(library_id):
+    # id is a primary key, so we'll have max 1 result row
+    library = models.Library.query.filter_by(id=library_id).first()
+    if library:
+        return jsonify(models.row2dict(library))
+    else:
+        return make_response(jsonify({"code": 404, "msg": "Cannot find this library id."}), 404)
 
 
 if __name__ == '__main__':

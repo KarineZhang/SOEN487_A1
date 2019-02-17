@@ -1,7 +1,4 @@
-from flask_sqlalchemy import SQLAlchemy
-from main import app
-
-db = SQLAlchemy(app)
+from app import db
 
 
 def row2dict(row):

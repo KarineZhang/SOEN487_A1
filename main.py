@@ -1,13 +1,8 @@
-from flask import Flask, jsonify, make_response, request
-from config import DevConfig
+from flask import jsonify, make_response, request
+from app import app
 
 import sqlalchemy
-
-# need an app before we import models because models need it
-app = Flask(__name__)
 import models
-
-app.config.from_object(DevConfig)
 
 
 @app.errorhandler(404)
@@ -21,40 +16,51 @@ def soen487_a1():
                     "student": {"id": "Your id#", "name": "Your name"}})
 
 
-@app.route("/person")
-def get_all_person():
-    person_list = models.Person.query.all()
-    return jsonify([models.row2dict(person) for person in person_list])
+@app.route("/user")
+def get_all_user():
+    user_list = models.User.query.all()
+    return jsonify([models.row2dict(user) for user in user_list])
 
 
-@app.route("/person/<person_id>")
-def get_person(person_id):
+@app.route("/user/<user_id>")
+def get_user(user_id):
     # id is a primary key, so we'll have max 1 result row
-    person = models.Person.query.filter_by(id=person_id).first()
-    if person:
-        return jsonify(models.row2dict(person))
+    user = models.User.query.filter_by(id=user_id).first()
+    if user:
+        return jsonify(models.row2dict(user))
     else:
-        return make_response(jsonify({"code": 404, "msg": "Cannot find this person id."}), 404)
+        return make_response(jsonify({"code": 404, "msg": "Cannot find this user id."}), 404)
 
 
-@app.route("/person", methods={"PUT"})
-def put_person():
+@app.route("/user", methods={"PUT"})
+def put_user():
     # get the name first, if no name then fail
+
+    card = request.form.get("card")
+    dob = request.form.get("dob")
     name = request.form.get("name")
-    if not name:
+    address = request.form.get("address")
+    telephone = request.form.get("telephone")
+    email = request.form.get("email")
+    limit_books = request.form.get("limit_books")
+
+    if not name and not card and not address and not telephone and not dob and not limit_books and not email:
         return make_response(jsonify({"code": 403,
-                                      "msg": "Cannot put person. Missing mandatory fields."}), 403)
-    person_id = request.form.get("id")
-    if not person_id:
-        p = models.Person(name=name)
+                                      "msg": "Cannot put user. Missing mandatory fields."}), 403)
+    user_id = request.form.get("id")
+    if not user_id:
+        p = models.User(name=name, card=card, address=address, telephone=telephone, dob=dob,
+                        limit_books=limit_books, email=email)
     else:
-        p = models.Person(id=person_id, name=name)
+        p = models.User(id=user_id, name=name, card=card,
+                        address=address, telephone=telephone, dob=dob, limit_books=limit_books,
+                        email=email)
 
     models.db.session.add(p)
     try:
         models.db.session.commit()
     except sqlalchemy.exc.SQLAlchemyError as e:
-        error = "Cannot put person. "
+        error = "Cannot put user. "
         print(app.config.get("DEBUG"))
         if app.config.get("DEBUG"):
             error += str(e)

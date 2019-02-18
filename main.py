@@ -214,5 +214,33 @@ def get_library(library_id):
         return make_response(jsonify({"code": 404, "msg": "Cannot find this library id."}), 404)
 
 
+@app.route("/library/<library_id>", methods={"DELETE"})
+def delete_library(library_id):
+    models.db.session.query(models.Library).filter(models.Library.id == library_id).delete()
+    try:
+        models.db.session.commit()
+    except sqlalchemy.exc.SQLAlchemyError as e:
+        error = "Cannot delete this library. "
+        print(app.config.get("DEBUG"))
+        if app.config.get("DEBUG"):
+            error += str(e)
+        return make_response(jsonify({"code": 404, "msg": error}), 404)
+    return jsonify({"code": 200, "msg": "successfully deleted library."})
+
+
+@app.route("/library", methods={"DELETE"})
+def delete_all_library():
+    models.db.session.query(models.Library).delete()
+    try:
+        models.db.session.commit()
+    except sqlalchemy.exc.SQLAlchemyError as e:
+        error = "Cannot delete this library. "
+        print(app.config.get("DEBUG"))
+        if app.config.get("DEBUG"):
+            error += str(e)
+        return make_response(jsonify({"code": 404, "msg": error}), 404)
+    return jsonify({"code": 200, "msg": "successfully deleted all libraries."})
+
+
 if __name__ == '__main__':
     app.run()

@@ -3,9 +3,11 @@ import json
 from main import app as tested_app
 from models import db as tested_db
 from config import TestConfig
-from models import User, Book, Library
+from models import User
 
 tested_app.config.from_object(TestConfig)
+
+# I did not test my delete methods, because I used it to clear up my table, and it works when I need to rerun tests.
 
 
 class TestUser(unittest.TestCase):

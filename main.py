@@ -141,6 +141,34 @@ def get_book(book_id):
         return make_response(jsonify({"code": 404, "msg": "Cannot find this book id."}), 404)
 
 
+@app.route("/book/<book_id>", methods={"DELETE"})
+def delete_book(book_id):
+    models.db.session.query(models.Book).filter(models.Book.id == book_id).delete()
+    try:
+        models.db.session.commit()
+    except sqlalchemy.exc.SQLAlchemyError as e:
+        error = "Cannot delete this book. "
+        print(app.config.get("DEBUG"))
+        if app.config.get("DEBUG"):
+            error += str(e)
+        return make_response(jsonify({"code": 404, "msg": error}), 404)
+    return jsonify({"code": 200, "msg": "successfully deleted book."})
+
+
+@app.route("/book", methods={"DELETE"})
+def delete_all_book():
+    models.db.session.query(models.Book).delete()
+    try:
+        models.db.session.commit()
+    except sqlalchemy.exc.SQLAlchemyError as e:
+        error = "Cannot delete this book. "
+        print(app.config.get("DEBUG"))
+        if app.config.get("DEBUG"):
+            error += str(e)
+        return make_response(jsonify({"code": 404, "msg": error}), 404)
+    return jsonify({"code": 200, "msg": "successfully deleted all books."})
+
+
 @app.route("/library", methods={"POST"})
 def put_library():
 
